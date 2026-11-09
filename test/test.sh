@@ -115,7 +115,13 @@ check() {
 }
 
 # How many requests the fake site logged that match a pattern.
-requests() { cat "$tmp/state/requests.log" 2>/dev/null | grep -c "$1" || true; }
+requests() {
+	if [[ -f "$tmp/state/requests.log" ]]; then
+		grep -c "$1" "$tmp/state/requests.log" || true
+	else
+		echo 0
+	fi
+}
 
 echo "Every game is checked and uploaded, each call with a fresh token"
 start

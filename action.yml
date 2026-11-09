@@ -1,0 +1,43 @@
+# The dyno Action: checks each game in dyno.toml with dyno and uploads the results to dynoapp.io,
+# with no secret. dyno.sh does the work; README.md says how to use it.
+name: dyno
+description: Check each game in dyno.toml with dyno, and upload the results to dynoapp.io with the run's GitHub OIDC token.
+author: dyno-labs
+
+inputs:
+  games:
+    description: The games of dyno.toml to check, by id or name, one per line or with commas between them. Empty checks every game.
+    required: false
+    default: ""
+  report-only:
+    description: When true, a game that fails, is incomplete or is invalid still passes the job. A game that dyno cannot check, or a result that does not upload, fails the job either way.
+    required: false
+    default: "true"
+  version:
+    description: The dyno to download from dynoapp.io, `latest` or a commit's full sha.
+    required: false
+    default: latest
+
+outputs:
+  results:
+    description: The folder that holds each game's result, as <game id>.json. Empty when dyno did not run.
+    value: ${{ steps.dyno.outputs.results }}
+
+runs:
+  using: composite
+  steps:
+    - id: dyno
+      shell: bash
+      env:
+        GAMES: ${{ inputs.games }}
+        REPORT_ONLY: ${{ inputs.report-only }}
+        VERSION: ${{ inputs.version }}
+      run: '"$GITHUB_ACTION_PATH/dyno.sh"'
+    - if: ${{ !cancelled() && steps.dyno.outputs.results != '' }}
+      uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+      with:
+        name: dyno-${{ github.job }}
+        path: ${{ steps.dyno.outputs.results }}
+        if-no-files-found: ignore
+        overwrite: true
+        retention-days: 14

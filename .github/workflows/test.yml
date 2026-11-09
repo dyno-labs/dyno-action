@@ -1,0 +1,26 @@
+# The Action's own checks on each push and pull request: shellcheck of its scripts, and its test
+# against a fake dynoapp.io and a fake dyno (test/test.sh). GitHub's Ubuntu runners have every
+# tool they need.
+name: test
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Shellcheck and test
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - run: shellcheck dyno.sh test/test.sh
+      - run: test/test.sh

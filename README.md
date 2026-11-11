@@ -2,8 +2,6 @@
 
 Checks each game in your repo's `dyno.toml` with [dyno](https://dynoapp.io), and uploads the results to dynoapp.io. It needs no secret: it uses the run's GitHub OIDC token.
 
-This repository is private for now, so only workflows in `dyno-labs` repos can use it. Until it is public, the setup pull request that dynoapp.io opens writes the same steps into the workflow itself.
-
 ## Before you use it
 
 1. Install the dyno-cloud GitHub App from dynoapp.io, Settings, GitHub, and connect the repo there.
